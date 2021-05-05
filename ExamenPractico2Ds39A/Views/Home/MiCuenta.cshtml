@@ -1,0 +1,123 @@
+﻿
+@{
+    ViewBag.Title = "MiCuenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model ExamenPractico2Ds39A.Models.transacciones
+<h2>MiCuenta</h2>
+<div  class="row">
+    <div class="col-sm-12 col-md-12 col-xl-12" id="contenedorCuenta">
+
+    </div>
+</div>
+@{ 
+    List<SelectListItem> opciones = new List<SelectListItem>()
+        {
+            new SelectListItem{ Text="deposito", Value="deposito" },
+            new SelectListItem{ Text="retiro", Value="retiro" },
+
+        };
+
+}
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Nueva transaccion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("Login", "Home", FormMethod.Post, htmlAttributes: new { id = "form-Transaccion" }))
+                {
+                    @Html.HiddenFor(t => t.ncta)
+
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Monto</label>
+                        @Html.TextBoxFor(t => t.monto, htmlAttributes: new { @class = "form-control decimales" })
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Tipo de deposito</label>
+                        @Html.DropDownListFor(c => c.tipo, opciones, htmlAttributes: new { @class = "form-control" })
+
+                    </div>
+
+                    <button type="submit" onclick="return confirm('Esta seguro que desea realizar la transaccion?')" class="btn btn-primary">Guardar</button>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+
+        updateInfo();
+   
+        $("#form-Transaccion").validate({
+            rules: {
+                monto: {
+                    required: true
+                },
+                tipo: {
+                    required: true
+                }
+            },
+            messages: {
+                monto: {
+                    required: "Este campo es requerido."
+                },
+                tipo: {
+                    required: "Este campo es requerido.",
+                }
+            },
+            submitHandler: function (form) {
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    data: $(form).serialize(),
+                    url: '/Home/AddTransaccion',
+                    success: function (respuesta) {
+                        if (respuesta.resultado === true) {
+                            $(form).trigger("reset");
+                            $('#liveToast').toast('show');
+                            $('#mensaje').html('Se agrego correctamente.');
+                            $('#exampleModal').modal('toggle');
+                            updateInfo();
+                        } else {
+                            $(form).trigger("reset");
+                            $('#liveToast').toast('show');
+
+                            $('#exampleModal').modal('toggle');
+                            $('#mensaje').html(respuesta.resultado);
+                        }
+                    },
+                    error: function () {
+                        console.log("No se ha podido obtener la información");
+                    }
+                });
+            }
+        });
+
+        function updateInfo() {
+            $.ajax({
+                url: '/Home/CuentaInfo',
+                method: 'POST',
+                async: true,
+                dataType: 'html',
+                success: function (data) {
+                    $('#contenedorCuenta').html(data);
+                    $('#ncta').val($('#nCuenta').val());
+                }
+            });
+        }
+    </script>
+
+}

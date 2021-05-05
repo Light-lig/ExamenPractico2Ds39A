@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="examen2ds39Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="cliente">
+          <Key>
+            <PropertyRef Name="cod_cliente" />
+          </Key>
+          <Property Name="cod_cliente" Type="int" Nullable="false" />
+          <Property Name="nombre_cliente" Type="varchar" MaxLength="50" />
+          <Property Name="nit" Type="varchar" MaxLength="17" />
+          <Property Name="rol" Type="varchar" MaxLength="30" />
+        </EntityType>
+        <EntityType Name="cuenta">
+          <Key>
+            <PropertyRef Name="ncta" />
+          </Key>
+          <Property Name="ncta" Type="int" Nullable="false" />
+          <Property Name="saldo" Type="float" />
+          <Property Name="cod_cliente" Type="int" />
+        </EntityType>
+        <EntityType Name="transacciones">
+          <Key>
+            <PropertyRef Name="cod_transac" />
+          </Key>
+          <Property Name="cod_transac" Type="int" Nullable="false" />
+          <Property Name="monto" Type="float" />
+          <Property Name="tipo" Type="varchar" MaxLength="20" />
+          <Property Name="ncta" Type="int" />
+          <Property Name="fecha" Type="date" />
+        </EntityType>
+        <Association Name="fk_codCliente">
+          <End Role="cliente" Type="Self.cliente" Multiplicity="0..1" />
+          <End Role="cuenta" Type="Self.cuenta" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cliente">
+              <PropertyRef Name="cod_cliente" />
+            </Principal>
+            <Dependent Role="cuenta">
+              <PropertyRef Name="cod_cliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_ncta">
+          <End Role="cuenta" Type="Self.cuenta" Multiplicity="0..1" />
+          <End Role="transacciones" Type="Self.transacciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cuenta">
+              <PropertyRef Name="ncta" />
+            </Principal>
+            <Dependent Role="transacciones">
+              <PropertyRef Name="ncta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="examen2ds39ModelStoreContainer">
+          <EntitySet Name="cliente" EntityType="Self.cliente" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="cuenta" EntityType="Self.cuenta" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="transacciones" EntityType="Self.transacciones" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="fk_codCliente" Association="Self.fk_codCliente">
+            <End Role="cliente" EntitySet="cliente" />
+            <End Role="cuenta" EntitySet="cuenta" />
+          </AssociationSet>
+          <AssociationSet Name="fk_ncta" Association="Self.fk_ncta">
+            <End Role="cuenta" EntitySet="cuenta" />
+            <End Role="transacciones" EntitySet="transacciones" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="examen2ds39Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="cliente">
+          <Key>
+            <PropertyRef Name="cod_cliente" />
+          </Key>
+          <Property Name="cod_cliente" Type="Int32" Nullable="false" />
+          <Property Name="nombre_cliente" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="nit" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
+          <Property Name="rol" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="cuenta" Relationship="Self.fk_codCliente" FromRole="cliente" ToRole="cuenta" />
+        </EntityType>
+        <EntityType Name="cuenta">
+          <Key>
+            <PropertyRef Name="ncta" />
+          </Key>
+          <Property Name="ncta" Type="Int32" Nullable="false" />
+          <Property Name="saldo" Type="Double" />
+          <Property Name="cod_cliente" Type="Int32" />
+          <NavigationProperty Name="cliente" Relationship="Self.fk_codCliente" FromRole="cuenta" ToRole="cliente" />
+          <NavigationProperty Name="transacciones" Relationship="Self.fk_ncta" FromRole="cuenta" ToRole="transacciones" />
+        </EntityType>
+        <EntityType Name="transacciones">
+          <Key>
+            <PropertyRef Name="cod_transac" />
+          </Key>
+          <Property Name="cod_transac" Type="Int32" Nullable="false" />
+          <Property Name="monto" Type="Double" />
+          <Property Name="tipo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ncta" Type="Int32" />
+          <Property Name="fecha" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="cuenta" Relationship="Self.fk_ncta" FromRole="transacciones" ToRole="cuenta" />
+        </EntityType>
+        <Association Name="fk_codCliente">
+          <End Role="cliente" Type="Self.cliente" Multiplicity="0..1" />
+          <End Role="cuenta" Type="Self.cuenta" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cliente">
+              <PropertyRef Name="cod_cliente" />
+            </Principal>
+            <Dependent Role="cuenta">
+              <PropertyRef Name="cod_cliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_ncta">
+          <End Role="cuenta" Type="Self.cuenta" Multiplicity="0..1" />
+          <End Role="transacciones" Type="Self.transacciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cuenta">
+              <PropertyRef Name="ncta" />
+            </Principal>
+            <Dependent Role="transacciones">
+              <PropertyRef Name="ncta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="examen2ds39Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="cliente" EntityType="Self.cliente" />
+          <EntitySet Name="cuenta" EntityType="Self.cuenta" />
+          <EntitySet Name="transacciones" EntityType="Self.transacciones" />
+          <AssociationSet Name="fk_codCliente" Association="Self.fk_codCliente">
+            <End Role="cliente" EntitySet="cliente" />
+            <End Role="cuenta" EntitySet="cuenta" />
+          </AssociationSet>
+          <AssociationSet Name="fk_ncta" Association="Self.fk_ncta">
+            <End Role="cuenta" EntitySet="cuenta" />
+            <End Role="transacciones" EntitySet="transacciones" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="examen2ds39ModelStoreContainer" CdmEntityContainer="examen2ds39Entities">
+          <EntitySetMapping Name="cliente">
+            <EntityTypeMapping TypeName="examen2ds39Model.cliente">
+              <MappingFragment StoreEntitySet="cliente">
+                <ScalarProperty Name="cod_cliente" ColumnName="cod_cliente" />
+                <ScalarProperty Name="nombre_cliente" ColumnName="nombre_cliente" />
+                <ScalarProperty Name="nit" ColumnName="nit" />
+                <ScalarProperty Name="rol" ColumnName="rol" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="cuenta">
+            <EntityTypeMapping TypeName="examen2ds39Model.cuenta">
+              <MappingFragment StoreEntitySet="cuenta">
+                <ScalarProperty Name="ncta" ColumnName="ncta" />
+                <ScalarProperty Name="saldo" ColumnName="saldo" />
+                <ScalarProperty Name="cod_cliente" ColumnName="cod_cliente" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="transacciones">
+            <EntityTypeMapping TypeName="examen2ds39Model.transacciones">
+              <MappingFragment StoreEntitySet="transacciones">
+                <ScalarProperty Name="cod_transac" ColumnName="cod_transac" />
+                <ScalarProperty Name="monto" ColumnName="monto" />
+                <ScalarProperty Name="tipo" ColumnName="tipo" />
+                <ScalarProperty Name="ncta" ColumnName="ncta" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

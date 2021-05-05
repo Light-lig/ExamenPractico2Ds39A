@@ -1,0 +1,116 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+@model ExamenPractico2Ds39A.Models.cliente
+@{
+    Layout = null;
+}
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+     <title></title>
+     @Styles.Render("~/Content/css")
+     @Scripts.Render("~/bundles/modernizr")
+ </head>
+ <body class="bg-dark">
+     <div class="container">
+         <div class="row">
+             <div class="col-sm">
+       
+             </div>
+             <div class="col-sm">
+                 <div class="card my-5" style="width: 18rem;">
+                     <div class="card-body">
+                         <h5 class="card-title">Login</h5>
+                         @using (Html.BeginForm("Login", "Home", FormMethod.Post, htmlAttributes: new { id = "form-login" }))
+                         {
+                             <div class="form-group">
+                                 <label for="exampleInputEmail1">Usuario</label>
+                                 @Html.TextBoxFor(c => c.cod_cliente, htmlAttributes: new { @class= "form-control"})
+                             </div>
+                             <div class="form-group">
+                                 <label for="exampleInputPassword1">Contrasenia</label>
+                                 @Html.TextBoxFor(c => c.nit, htmlAttributes: new {  @class = "form-control", type="password" })
+
+                             </div>
+
+                             <button type="submit" class="btn btn-primary">Entrar</button>
+                         }
+                    
+                     </div>
+                 </div>
+             </div>
+             <div class="col-sm">
+                 <div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 0; bottom: 0;">
+                     <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
+                         <div class="toast-header">
+                         
+                             <strong class="mr-auto">Bootstrap</strong>
+       
+                             <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                                 <span aria-hidden="true">&times;</span>
+                             </button>
+                         </div>
+                         <div class="toast-body" id="mensaje">
+                           
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     @Scripts.Render("~/bundles/jquery")
+     @Scripts.Render("~/bundles/bootstrap")
+     @Scripts.Render("~/bundles/jqueryval")
+     
+   
+          <script>
+              $("#form-login").validate({
+                  rules: {
+                      cod_cliente: {
+                          required: true,
+                          digits: true
+                      },
+                      nit: {
+                          required: true
+                      }
+                  },
+                  messages: {
+                      cod_cliente: {
+                          required: "Este campo es requerido.",
+                          digits: "Este campo solo acepta numeros."
+                      },
+                      nit: {
+                          required: "Este campo es requerido.",
+                      }
+                  },
+                  submitHandler: function (form) {
+        
+                      $.ajax({
+                          type: "POST",
+                          dataType: "json",
+                          data: $(form).serialize(),
+                          url: 'https://localhost:44354/Home/Login',
+                          success: function (respuesta) {
+                              if (respuesta.result === false) {
+                                  $('#liveToast').toast('show');
+                                  $('#mensaje').html('Usuario o contrasenia equivocada.');
+                              } else {
+                                  window.location.href = respuesta.result;
+                              }
+                          },
+                          error: function () {
+                              console.log("No se ha podido obtener la información");
+                          }
+                      });
+                  }
+              });
+           
+          </script>
+   
+
+ </body>
+</html>
+
+
+
