@@ -1,4 +1,5 @@
-﻿using ExamenPractico2Ds39A.Models;
+﻿using ExamenPractico2Ds39A.DTOS;
+using ExamenPractico2Ds39A.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -22,10 +23,34 @@ namespace ExamenPractico2Ds39A.Controllers
             if(cliente != null)
             {
                 Session["cliente"] = cliente;
-                return Json(new { result = "https://localhost:44354/Home/MiCuenta" });
+                switch (cliente.rol)
+                {
+                    case "cliente":
+                        return Json(new { result = "/Home/MiCuenta" });
+                    default:
+                        return Json(new { result = "/Home/Clientes" });
+                }
+
+
             }
 
             return Json(new { result = false});
+        }
+
+        public ActionResult Clientes()
+        {
+            cliente us = (cliente)Session["cliente"];
+            if (us != null) {
+                if (us.rol.Equals("cliente"))
+                {
+                    return RedirectToAction("MiCuenta");
+                }
+                else
+                {
+                    return View();
+                }
+            }
+            return RedirectToAction("Index");
         }
 
         public ActionResult MiCuenta()
@@ -37,8 +62,32 @@ namespace ExamenPractico2Ds39A.Controllers
             }
             else
             {
+                if(us.rol == "administrador")
+                {
+                    return RedirectToAction("Clientes");
+                }
                 return View();
             }
+        }
+
+        [HttpPost]
+        public ActionResult getTablaClientes()
+        {
+            var clientes = (from c in contexto.cliente
+                            join cu in contexto.cuenta on c.cod_cliente equals cu.cod_cliente
+                            select new ClienteDto()
+                            {
+                                cod_cliente = c.cod_cliente,
+                                nombre_cliente = c.nombre_cliente,
+                                nit = c.nit,
+                                ncta = cu.ncta,
+                                saldo = (double)cu.saldo
+                            }
+                                ).ToList();
+            var cantidad = contexto.cliente.OrderByDescending(c => c.cod_cliente).Count();
+            ViewBag.clientes = clientes;
+            ViewBag.cantidad = cantidad;
+            return View("TablaClientes");
         }
 
         public ActionResult CerrarSession()
@@ -48,12 +97,54 @@ namespace ExamenPractico2Ds39A.Controllers
         }
 
         [HttpPost]
+        public ActionResult AddCliente(ClienteDto cli)
+        {
+            try
+            {
+                int id = 0;
+                var cliente = contexto.cliente.OrderByDescending(c => c.cod_cliente).FirstOrDefault();
+                if (cliente != null)
+                {
+                    id = cliente.cod_cliente + 1;
+                }
+                cliente cl = new cliente();
+                cl.cod_cliente = id;
+                cl.nombre_cliente = cli.nombre_cliente;
+                cl.nit = cli.nit;
+                cl.rol = "cliente";
+                int idCuenta = 0;
+                cuenta cu = new cuenta();
+                var cuenta = contexto.cuenta.OrderByDescending(cue => cue.ncta).FirstOrDefault();
+                if (cuenta != null)
+                {
+                    idCuenta = cuenta.ncta + 1;
+                }
+                cu.ncta = idCuenta;
+                cu.saldo = cli.saldo;
+                cu.cod_cliente = id;
+                contexto.cliente.Add(cl);
+                contexto.cuenta.Add(cu);
+                contexto.SaveChanges();
+                return Json(new { resultado = true });
+            }
+            catch (Exception e)
+            {
+
+                return Json(new { resultado = e.Message.ToString() });
+            }
+          
+        }
+
+        [HttpPost]
         public ActionResult CuentaInfo()
         {
             cliente us = (cliente)Session["cliente"];
             var cuenta = contexto.cuenta.Where(c => c.cod_cliente == us.cod_cliente).FirstOrDefault();
+
             var transacciones = contexto.transacciones.Where(t => t.ncta == cuenta.ncta);
+            var cantidad = contexto.transacciones.Where(t => t.ncta == cuenta.ncta).Count();
             ViewBag.cuenta = cuenta;
+            ViewBag.cantidad = cantidad;
             ViewBag.transacciones = transacciones;
             return PartialView("CuentaInfo");
         }

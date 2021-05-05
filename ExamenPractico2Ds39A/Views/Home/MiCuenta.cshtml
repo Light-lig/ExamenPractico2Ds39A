@@ -32,7 +32,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                @using (Html.BeginForm("Login", "Home", FormMethod.Post, htmlAttributes: new { id = "form-Transaccion" }))
+                @using (Html.BeginForm("AddTransaccion", "Home", FormMethod.Post, htmlAttributes: new { id = "form-Transaccion" }))
                 {
                     @Html.HiddenFor(t => t.ncta)
 
@@ -118,6 +118,7 @@
                 }
             });
         }
+    
     </script>
 
 }

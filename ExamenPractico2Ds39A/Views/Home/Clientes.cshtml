@@ -1,0 +1,142 @@
+﻿
+@{
+    ViewBag.Title = "Clientes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Clientes</h2>
+@model ExamenPractico2Ds39A.DTOS.ClienteDto
+
+<div class="row">
+    <div class="col-sm-12 col-md-12 col-xl-12">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Agregar Nuevo Cliente
+        </button>
+    </div>
+
+    <div class="col-sm-12 col-md-12 col-xl-12" id="tablaClientes">
+
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("AddCliente", "Home", FormMethod.Post, htmlAttributes: new { id = "form-Cliente" }))
+                {
+
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Nombre del cliente</label>
+                        @Html.TextBoxFor(cd => cd.nombre_cliente, htmlAttributes: new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Nit</label>
+                        @Html.TextBoxFor(cd => cd.nit, htmlAttributes: new { @class = "form-control nit" })
+
+                    </div>
+                    <h3>Informacion de la cuenta</h3>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Saldo</label>
+                        @Html.TextBoxFor(cd => cd.saldo, htmlAttributes: new { @class = "form-control decimales" })
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+
+        $("#form-Cliente").validate({
+            rules: {
+                nombre_cliente: {
+                    required: true
+                },
+                nit: {
+                    required: true
+                },
+                saldo: {
+                    required: true
+                }
+            },
+            messages: {
+                nombre_cliente: {
+                    required: "Este campo es requerido."
+                },
+                nit: {
+                    required: "Este campo es requerido.",
+                },
+                saldo: {
+                    required: "Este campo es requerido"
+                }
+            },
+            submitHandler: function (form) {
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    data: $(form).serialize(),
+                    url: '/Home/AddCliente',
+                    success: function (respuesta) {
+                        if (respuesta.resultado === true) {
+                            $(form).trigger("reset");
+                            $('#mensaje').html('Se agrego correctamente.');
+                            $('#liveToast').toast('show');
+                            $('#exampleModal').modal('toggle');
+                            mostrarDatos();
+                        } else {
+                            $(form).trigger("reset");
+                            $('#mensaje').html(respuesta.resultado);
+                            $('#liveToast').toast('show');
+                            $('#exampleModal').modal('toggle');
+
+                        }
+                    },
+                    error: function () {
+                        console.log("No se ha podido obtener la información");
+                    }
+                });
+            }
+        });
+        mostrarDatos = () => {
+            $.ajax({
+                url: '/Home/getTablaClientes',
+                method: 'POST',
+                async: true,
+                dataType: 'html',
+                success: function (data) {
+                    $('#tablaClientes').html(data);
+                }
+            });
+        }
+        mostrarDatos();
+
+        $.validator.addMethod(
+            "regex",
+            function (value, element, regexp) {
+                var re = new RegExp(regexp);
+                return this.optional(element) || re.test(value);
+            },
+            "Please check your input."
+        );
+        $("nit").rules("add", { regex: "^[0-9]{1,4}-[0-9]{1,6}-[0-9]{1,3}-[0-9]{1,1}}$" });
+    </script>
+    
+    }
+
